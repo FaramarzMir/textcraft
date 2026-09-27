@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextCraft - Smart Text & Document Toolkit</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">TextCraft <span>PWA</span></div>
+        <p class="tagline">Fast, Private & Free Online Text Utilities</p>
+    </header>
+
+    <main class="container">
+        
+        <!-- Stats Dashboard -->
+        <section class="stats-bar">
+            <div class="stat-item">
+                <span id="word-count">0</span>
+                <label>Words</label>
+            </div>
+            <div class="stat-item">
+                <span id="char-count">0</span>
+                <label>Characters</label>
+            </div>
+            <div class="stat-item">
+                <span id="line-count">0</span>
+                <label>Lines</label>
+            </div>
+            <div class="stat-item">
+                <span id="reading-time">0 min</span>
+                <label>Reading Time</label>
+            </div>
+        </section>
+
+        <!-- Main Workspace -->
+        <section class="editor-section">
+            <textarea id="text-input" placeholder="Type or paste your text here..."></textarea>
+            
+            <!-- Quick Actions Bar -->
+            <div class="action-grid">
+                <button onclick="cleanSpaces()" class="btn">Clean Extra Spaces</button>
+                <button onclick="toUpperCase()" class="btn">UPPERCASE</button>
+                <button onclick="toLowerCase()" class="btn">lowercase</button>
+                <button onclick="toTitleCase()" class="btn">Title Case</button>
+                <button onclick="removeEmptyLines()" class="btn">Remove Empty Lines</button>
+                <button onclick="copyText()" class="btn btn-accent">Copy Text</button>
+                <button onclick="clearText()" class="btn btn-danger">Clear</button>
+            </div>
+        </section>
+
+        <!-- Export Section -->
+        <section class="export-section">
+            <h3>Export Document</h3>
+            <div class="export-buttons">
+                <button onclick="downloadAsTXT()" class="btn btn-outline">Download .TXT</button>
+                <!-- PDF and DOCX buttons will be linked to libraries in the next step -->
+                <button onclick="downloadAsPDF()" class="btn btn-outline">Export .PDF</button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TextCraft. All processing happens locally on your device for maximum privacy.</p>
+    </footer>
+    <!-- html2pdf library to convert text/HTML to PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script src="script.js"></script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</body>
+</html>
