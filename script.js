@@ -75,48 +75,37 @@ function downloadAsTXT() {
     URL.revokeObjectURL(url);
 }
 
-// Export PDF File (Clean, multi-page & responsive fix)
+// Export PDF File (Clean & Direct Text Rendering)
 function downloadAsPDF() {
     if (!textInput.value) {
         alert('Please enter some text first!');
         return;
     }
 
-    // 1. Create a isolated container with standard A4 printable width
+    // Create container
     const element = document.createElement('div');
-    element.style.width = '190mm'; // Standard inner width for A4
-    element.style.padding = '10mm 5mm';
-    element.style.fontSize = '11pt';
-    element.style.lineHeight = '1.5';
+    element.style.padding = '10mm';
+    element.style.fontSize = '12pt';
+    element.style.lineHeight = '1.6';
     element.style.fontFamily = 'Arial, sans-serif';
     element.style.color = '#000000';
     element.style.whiteSpace = 'pre-wrap';
     element.style.wordBreak = 'break-word';
     element.innerText = textInput.value;
 
-    // 2. Temporarily attach to document body to ensure render calculation
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
-    element.style.top = '0';
-    document.body.appendChild(element);
-
-    // 3. Configure PDF generation options
     const opt = {
-        margin:       [15, 10, 15, 10], // top, left, bottom, right (mm)
+        margin:       [15, 15, 15, 15],
         filename:     'TextCraft-Document.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { 
             scale: 2, 
             useCORS: true,
-            scrollY: 0,
-            scrollX: 0
+            windowWidth: 800, // Fixed render width prevents top whitespace
+            scrollY: 0
         },
         pagebreak:    { mode: ['css', 'legacy'] },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // 4. Generate PDF and remove element cleanup after generation
-    html2pdf().set(opt).from(element).save().then(() => {
-        document.body.removeChild(element);
-    });
+    html2pdf().set(opt).from(element).save();
 }
