@@ -75,29 +75,38 @@ function downloadAsTXT() {
     URL.revokeObjectURL(url);
 }
 
-// Export PDF File (New Feature)
+// Export PDF File (Fixed Multi-page & Shift Issue)
 function downloadAsPDF() {
-    if(!textInput.value) {
+    if (!textInput.value) {
         alert('Please enter some text first!');
         return;
     }
-    
-    // Create a styled temporary element for clean PDF generation
+
+    // 1. Create a styled container for clean document rendering
     const element = document.createElement('div');
-    element.style.padding = '30px';
-    element.style.fontSize = '14px';
+    element.style.padding = '20px';
+    element.style.fontSize = '12pt';
     element.style.lineHeight = '1.6';
     element.style.fontFamily = 'Arial, sans-serif';
+    element.style.color = '#333333';
     element.style.whiteSpace = 'pre-wrap'; // Preserves line breaks
+    element.style.wordBreak = 'break-word';
     element.innerText = textInput.value;
 
+    // 2. Options configuration for multi-page support and high quality
     const opt = {
-      margin:       15,
-      filename:     'TextCraft-Document.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        margin:       [15, 15, 15, 15], // Top, Left, Bottom, Right (mm)
+        filename:     'TextCraft-Document.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true,
+            scrollY: 0 // Fixes shifting down issue
+        },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }, // Auto split long texts into multiple pages
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
+    // 3. Generate PDF and save
     html2pdf().set(opt).from(element).save();
 }
