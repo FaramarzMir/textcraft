@@ -75,38 +75,48 @@ function downloadAsTXT() {
     URL.revokeObjectURL(url);
 }
 
-// Export PDF File (Fixed Multi-page & Shift Issue)
+// Export PDF File (Clean, multi-page & responsive fix)
 function downloadAsPDF() {
     if (!textInput.value) {
         alert('Please enter some text first!');
         return;
     }
 
-    // 1. Create a styled container for clean document rendering
+    // 1. Create a isolated container with standard A4 printable width
     const element = document.createElement('div');
-    element.style.padding = '20px';
-    element.style.fontSize = '12pt';
-    element.style.lineHeight = '1.6';
+    element.style.width = '190mm'; // Standard inner width for A4
+    element.style.padding = '10mm 5mm';
+    element.style.fontSize = '11pt';
+    element.style.lineHeight = '1.5';
     element.style.fontFamily = 'Arial, sans-serif';
-    element.style.color = '#333333';
-    element.style.whiteSpace = 'pre-wrap'; // Preserves line breaks
+    element.style.color = '#000000';
+    element.style.whiteSpace = 'pre-wrap';
     element.style.wordBreak = 'break-word';
     element.innerText = textInput.value;
 
-    // 2. Options configuration for multi-page support and high quality
+    // 2. Temporarily attach to document body to ensure render calculation
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    element.style.top = '0';
+    document.body.appendChild(element);
+
+    // 3. Configure PDF generation options
     const opt = {
-        margin:       [15, 15, 15, 15], // Top, Left, Bottom, Right (mm)
+        margin:       [15, 10, 15, 10], // top, left, bottom, right (mm)
         filename:     'TextCraft-Document.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { 
             scale: 2, 
             useCORS: true,
-            scrollY: 0 // Fixes shifting down issue
+            scrollY: 0,
+            scrollX: 0
         },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }, // Auto split long texts into multiple pages
+        pagebreak:    { mode: ['css', 'legacy'] },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // 3. Generate PDF and save
-    html2pdf().set(opt).from(element).save();
+    // 4. Generate PDF and remove element cleanup after generation
+    html2pdf().set(opt).from(element).save().then(() => {
+        document.body.removeChild(element);
+    });
 }
