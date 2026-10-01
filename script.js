@@ -75,16 +75,18 @@ function downloadAsTXT() {
     URL.revokeObjectURL(url);
 }
 
-// Export PDF File (Clean & Direct Text Rendering)
+// Export PDF File (Clean, Standard & Multi-page Solution)
 function downloadAsPDF() {
     if (!textInput.value) {
         alert('Please enter some text first!');
         return;
     }
 
-    // Create container
+    // 1. Create a clean temporary container with exact A4 printable boundaries
     const element = document.createElement('div');
-    element.style.padding = '10mm';
+    element.style.width = '170mm'; // Standard readable line width for A4
+    element.style.margin = '0 auto';
+    element.style.padding = '10mm 0';
     element.style.fontSize = '12pt';
     element.style.lineHeight = '1.6';
     element.style.fontFamily = 'Arial, sans-serif';
@@ -93,19 +95,29 @@ function downloadAsPDF() {
     element.style.wordBreak = 'break-word';
     element.innerText = textInput.value;
 
+    // 2. Temporarily place off-screen to allow proper element dimension calculation
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    element.style.top = '0';
+    document.body.appendChild(element);
+
+    // 3. Configure PDF Options
     const opt = {
-        margin:       [15, 15, 15, 15],
+        margin:       [15, 20, 15, 20], // Top, Left, Bottom, Right margins in mm
         filename:     'TextCraft-Document.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { 
             scale: 2, 
             useCORS: true,
-            windowWidth: 800, // Fixed render width prevents top whitespace
-            scrollY: 0
+            scrollY: 0,
+            scrollX: 0
         },
         pagebreak:    { mode: ['css', 'legacy'] },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(element).save();
+    // 4. Generate PDF and safely remove temporary element afterwards
+    html2pdf().set(opt).from(element).save().then(() => {
+        document.body.removeChild(element);
+    });
 }
