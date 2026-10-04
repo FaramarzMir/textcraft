@@ -75,51 +75,6 @@ function downloadAsTXT() {
     URL.revokeObjectURL(url);
 }
 
-// Export PDF File (Pure Native jsPDF Solution - Unlimited Pages & Zero Top Gap)
-function downloadAsPDF() {
-    if (!textInput.value) {
-        alert('Please enter some text first!');
-        return;
-    }
-
-    // Access jsPDF from window namespace
-    const { jsPDF } = window.jspdf || {};
-    
-    // Fallback if jsPDF direct library is used
-    const doc = jsPDF ? new jsPDF({ unit: 'mm', format: 'a4' }) : new jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-
-    // Page & Margin Settings
-    const pageHeight = doc.internal.pageSize.getHeight(); // ~297mm
-    const pageWidth = doc.internal.pageSize.getWidth();   // ~210mm
-    const marginTop = 15;
-    const marginBottom = 15;
-    const marginLeft = 15;
-    const marginRight = 15;
-    const printableWidth = pageWidth - marginLeft - marginRight; // 180mm
-
-    // Font Configuration
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(11);
-
-    // Split raw text into wrapped lines that fit within printable width
-    const lines = doc.splitTextToSize(textInput.value, printableWidth);
-
-    let cursorY = marginTop;
-    const lineHeight = 6.5; // Distance between lines in mm
-
-    // Render line by line with auto page creation
-    lines.forEach(line => {
-        if (cursorY + lineHeight > pageHeight - marginBottom) {
-            doc.addPage();
-            cursorY = marginTop; // Reset cursor to top for new page
-        }
-        doc.text(line, marginLeft, cursorY);
-        cursorY += lineHeight;
-    });
-
-    // Save generated PDF
-    doc.save('TextCraft-Document.pdf');
-}
 function downloadAsPDF() {
     if (!textInput.value) {
         alert('Please enter some text first!');
