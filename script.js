@@ -75,49 +75,48 @@ function downloadAsTXT() {
     URL.revokeObjectURL(url);
 }
 
-// Export PDF File (Clean, Standard & Multi-page Solution)
+// Export PDF File (Pure Native jsPDF Solution - Unlimited Pages & Zero Top Gap)
 function downloadAsPDF() {
     if (!textInput.value) {
         alert('Please enter some text first!');
         return;
     }
 
-    // 1. Create a clean temporary container with exact A4 printable boundaries
-    const element = document.createElement('div');
-    element.style.width = '170mm'; // Standard readable line width for A4
-    element.style.margin = '0 auto';
-    element.style.padding = '10mm 0';
-    element.style.fontSize = '12pt';
-    element.style.lineHeight = '1.6';
-    element.style.fontFamily = 'Arial, sans-serif';
-    element.style.color = '#000000';
-    element.style.whiteSpace = 'pre-wrap';
-    element.style.wordBreak = 'break-word';
-    element.innerText = textInput.value;
+    // Access jsPDF from window namespace
+    const { jsPDF } = window.jspdf || {};
+    
+    // Fallback if jsPDF direct library is used
+    const doc = jsPDF ? new jsPDF({ unit: 'mm', format: 'a4' }) : new jspdf.jsPDF({ unit: 'mm', format: 'a4' });
 
-    // 2. Temporarily place off-screen to allow proper element dimension calculation
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
-    element.style.top = '0';
-    document.body.appendChild(element);
+    // Page & Margin Settings
+    const pageHeight = doc.internal.pageSize.getHeight(); // ~297mm
+    const pageWidth = doc.internal.pageSize.getWidth();   // ~210mm
+    const marginTop = 15;
+    const marginBottom = 15;
+    const marginLeft = 15;
+    const marginRight = 15;
+    const printableWidth = pageWidth - marginLeft - marginRight; // 180mm
 
-    // 3. Configure PDF Options
-    const opt = {
-        margin:       [15, 20, 15, 20], // Top, Left, Bottom, Right margins in mm
-        filename:     'TextCraft-Document.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true,
-            scrollY: 0,
-            scrollX: 0
-        },
-        pagebreak:    { mode: ['css', 'legacy'] },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    // Font Configuration
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(11);
 
-    // 4. Generate PDF and safely remove temporary element afterwards
-    html2pdf().set(opt).from(element).save().then(() => {
-        document.body.removeChild(element);
+    // Split raw text into wrapped lines that fit within printable width
+    const lines = doc.splitTextToSize(textInput.value, printableWidth);
+
+    let cursorY = marginTop;
+    const lineHeight = 6.5; // Distance between lines in mm
+
+    // Render line by line with auto page creation
+    lines.forEach(line => {
+        if (cursorY + lineHeight > pageHeight - marginBottom) {
+            doc.addPage();
+            cursorY = marginTop; // Reset cursor to top for new page
+        }
+        doc.text(line, marginLeft, cursorY);
+        cursorY += lineHeight;
     });
+
+    // Save generated PDF
+    doc.save('TextCraft-Document.pdf');
 }
