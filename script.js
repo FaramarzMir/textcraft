@@ -120,3 +120,44 @@ function downloadAsPDF() {
     // Save generated PDF
     doc.save('TextCraft-Document.pdf');
 }
+function downloadAsPDF() {
+    if (!textInput.value) {
+        alert('Please enter some text first!');
+        return;
+    }
+
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('PDF library failed to load. Check your internet connection.');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const marginTop = 15, marginBottom = 15, marginLeft = 15, marginRight = 15;
+    const printableWidth = pageWidth - marginLeft - marginRight;
+    const lineHeight = 6.5;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+
+    // هر پاراگراف جدا wrap میشه تا خطوط خالی حفظ بشن
+    const paragraphs = textInput.value.split(/\r?\n/);
+    let cursorY = marginTop + 4; // jsPDF متن رو از baseline می‌نویسه
+
+    paragraphs.forEach(par => {
+        const lines = par === '' ? [''] : doc.splitTextToSize(par, printableWidth);
+        lines.forEach(line => {
+            if (cursorY > pageHeight - marginBottom) {
+                doc.addPage();
+                cursorY = marginTop + 4;
+            }
+            if (line) doc.text(line, marginLeft, cursorY);
+            cursorY += lineHeight;
+        });
+    });
+
+    doc.save('TextCraft-Document.pdf');
+}
